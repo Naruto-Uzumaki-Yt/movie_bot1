@@ -701,8 +701,7 @@ async def send_page(
         pass
 
 # ---------------- CALLBACK ----------------
-
-if data == "refresh_stats":
+if query.data == "refresh_stats":
 
     if query.from_user.id not in ADMINS:
         return await query.answer("Not allowed", show_alert=True)
@@ -717,8 +716,27 @@ if data == "refresh_stats":
 
     await query.message.edit_text(text, reply_markup=btn)
 
-    await query.answer("Updated ✅")
+    return await query.answer("Updated ✅")
+    
 
+async def get_stats_text():
+
+    total_users = await users.count_documents({})
+    total_chats = await chats.count_documents({})
+    total_files = await movies.count_documents({})
+
+    text = f"""
+Tᴏᴛᴀʟ Fɪʟᴇs Fʀᴏᴍ Bᴏᴛʜ DBs: {total_files}
+
+Bᴏᴛ Usᴇʀs ᴀɴᴅ Cʜᴀᴛs Cᴏᴜɴᴛ
+★ Tᴏᴛᴀʟ Usᴇʀs: {total_users}
+★ Tᴏᴛᴀʟ Cʜᴀᴛs: {total_chats}
+
+⍟─────[ ʙᴏᴛ sᴛᴀᴛᴜ𝗌 ]─────⍟
+"""
+
+    return text
+    
 @app.on_callback_query()
 async def callback(
     client,
@@ -900,7 +918,6 @@ async def stats(client, message):
     ])
 
     await message.reply_text(text, reply_markup=btn)
-
 #------------ BROADCAST --------------#
 
 @app.on_message(filters.command("broadcast"))
