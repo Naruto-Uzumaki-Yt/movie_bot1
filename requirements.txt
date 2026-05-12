@@ -1,3 +1,9 @@
+# ------------------------- #
+# Don't Remove Credit 
+# Ask Doubt @AU_Bot_Discussion 
+# Owner @Mr_Mohammed_29 
+# ------------------------- #
+
 pyrogram==2.0.106
 TgCrypto
 motor
@@ -5,3 +11,9 @@ flask
 gunicorn
 dnspython
 requests
+
+# ------------------------- #
+# Don't Remove Credit 
+# Ask Doubt @AU_Bot_Discussion 
+# Owner @Mr_Mohammed_29 
+# ------------------------- #
