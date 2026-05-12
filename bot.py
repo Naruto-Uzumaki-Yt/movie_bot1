@@ -14,7 +14,7 @@ from flask import Flask
 
 from threading import Thread
 
-from database import *
+from database import add_movie, add_user, add_chat, movies, users
 from config import *
 
 import requests
@@ -166,7 +166,6 @@ def get_imdb(query):
         return None
 
 # ---------------- START ----------------
-# ---------------- START ----------------
 
 @app.on_message(filters.command("start"))
 async def start(client, message):
@@ -267,6 +266,11 @@ async def start(client, message):
 
         reply_markup=buttons
     )
+
+@app.on_message(filters.group)
+async def track_group(client, message):
+    await add_chat(message.chat.id)
+    
 # ---------------- HOME ----------------
 
 @app.on_callback_query(filters.regex("home"))
@@ -896,6 +900,8 @@ async def stats(client, message):
     ])
 
     await message.reply_text(text, reply_markup=btn)
+
+#------------ BROADCAST --------------#
 
 @app.on_message(filters.command("broadcast"))
 async def broadcast(client, message):
