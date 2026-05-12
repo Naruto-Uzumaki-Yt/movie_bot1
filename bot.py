@@ -58,7 +58,7 @@ search_cache = {}
 
 # ---------------- START CONFIG ----------------
 
-START_PIC = "https://graph.org/file/0e77ba48a8b7a3b09296f-362372bee0d84fd217.jpg"
+START_PIC = "https://ibb.co/qYBwMDby"
 
 START_TEXT = (
     "🎬 Welcome To Movie Search Bot\n\n"
@@ -389,7 +389,10 @@ async def subscribed(client, user_id):
 @app.on_message(
     filters.private
     & filters.text
-    & ~filters.command(["start"])
+    & ~filters.command([
+        "start",
+        "stats"
+    ])
 )
 async def search_movie(
     client,
@@ -647,13 +650,14 @@ async def callback(
 
 @app.on_message(
     filters.command("stats")
-    & filters.user(ADMINS)
 )
 async def stats(
     client,
     message
 ):
-
+    if message.from_user.id not in ADMINS:
+        return
+    
     total_users = (
         await users.count_documents({})
     )
