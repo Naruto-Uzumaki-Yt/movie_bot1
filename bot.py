@@ -168,7 +168,7 @@ async def start(client, message):
         user_id
     )
 
-    # NOT JOINED
+    # USER NOT JOINED
 
     if not join:
 
@@ -279,8 +279,7 @@ async def owner_callback(client, query):
         reply_markup=buttons
     )
 
-# ---------------- CHECK SUB ----------------
-
+#------------- CHECK SUB -------------#
 @app.on_callback_query(
     filters.regex("checksub")
 )
@@ -296,21 +295,12 @@ async def check_sub_callback(
         user_id
     )
 
-    # STILL NOT JOINED
-
     if not join:
 
         return await query.answer(
             "Join updates channel first.",
             show_alert=True
         )
-
-    # JOINED SUCCESS
-
-    await query.message.edit_media(
-
-        media=query.message.photo.file_id
-    )
 
     await query.message.edit_caption(
 
@@ -326,30 +316,35 @@ async def check_sub_callback(
 # ---------------- SAVE MOVIES ----------------
 
 @app.on_message(
-    filters.chat(LOG_CHANNEL)
+    filters.channel
+    & filters.chat(LOG_CHANNEL)
     & (filters.document | filters.video)
 )
 async def save_movie(client, message):
 
-    media = (
-        message.document
-        or message.video
-    )
+    media = message.document or message.video
 
     if not media:
         return
 
+    file_name = media.file_name
+
+    if not file_name:
+        file_name = "Movie"
+
     data = {
-        "file_name": media.file_name,
+
+        "file_name": file_name,
+
         "file_id": media.file_id,
+
         "file_size": media.file_size
+
     }
 
     await add_movie(data)
 
-    print(
-        f"Saved : {media.file_name}"
-    )
+    print(f"✅ Saved : {file_name}")
 
 # ---------------- FORCE SUB ----------------
 
