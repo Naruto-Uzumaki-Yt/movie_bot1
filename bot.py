@@ -14,7 +14,7 @@ from flask import Flask
 
 from threading import Thread
 
-from database import add_movie, add_user, add_chat, movies, users
+from database import add_movie, add_user, add_chat, movies, users, chats
 from config import *
 
 import requests
