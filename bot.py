@@ -61,35 +61,48 @@ search_cache = {}
 START_PIC = "https://ibb.co/qYBwMDby"
 
 START_TEXT = (
-    "🎬 Welcome To Movie Search Bot\n\n"
-    "✨ Search your favourite movies instantly.\n"
-    "📥 Fast movie delivery\n"
-    "🎞 Multi quality support\n"
-    "Updates : @Anime_UpdatesAU"
+    "👋 Hello {mention}\n\n"
+
+    "🎬 I Am A Powerful AutoFilter Movie Bot.\n\n"
+
+    "🔎 Send Any Movie Name\n"
+    "📥 Get Files Instantly\n"
+    "⚡ Fast Search System\n"
+    "🎞 Multi Quality Support\n\n"
+
+    "📢 Updates : @Anime_UpdatesAU"
 )
 
 HELP_TEXT = (
-    "🆘 Help Menu\n\n"
-    "• Send movie name to search\n"
-    "• Select movie from buttons\n"
-    "• Bot sends movie instantly\n"
-    "• Join updates channel for access"
+    "🆘 HELP MENU\n\n"
+
+    "🔎 Send movie name to search\n"
+    "📥 Click buttons to get files\n"
+    "⚡ Fast movie searching\n"
+    "🎞 Supports movies & series\n"
+    "🗑 Auto delete enabled\n\n"
+
+    "📢 Updates : @Anime_UpdatesAU"
 )
 
 ABOUT_TEXT = (
-    "ℹ️ About Bot\n\n"
-    "Name : AU_ZoroFilter_bot\n"
-    "Library : Pyrogram\n"
-    "Language : Python\n"
-    "Database : MongoDB\n"
-    "Server : @BotsServerDead l\n"
-    "Updates: @Anime_UpdatesAU\n"
-    "Developer : Mr_Mohammed_29"
+    "ℹ️ ABOUT BOT\n\n"
+
+    "🤖 Name : @AU_ZoroFilter_bot\n"
+    "⚡ Library : Pyrogram\n"
+    "🐍 Language : Python\n"
+    "🗄 Database : MongoDB\n"
+    "🌐 Server : @BotsServerDead\n"
+    "📢 Updates : @Anime_UpdatesAU\n"
+    "👑 Developer : @Mr_Mohammed_29"
 )
 
 OWNER_TEXT = (
-    "👑 Owner Details\n\n"
-    "📢 Channel : @Anime_UpdatesAU"
+    "👑 OWNER DETAILS\n\n"
+
+    "👤 Owner : @Mr_Mohammed_29\n"
+    "📢 Channel : @Anime_UpdatesAU\n"
+    "💬 Support : @AU_Bot_Discussion"
 )
 
 # ---------------- BUTTONS ----------------
@@ -153,6 +166,7 @@ def get_imdb(query):
         return None
 
 # ---------------- START ----------------
+# ---------------- START ----------------
 
 @app.on_message(filters.command("start"))
 async def start(client, message):
@@ -161,14 +175,12 @@ async def start(client, message):
 
     user_id = message.from_user.id
 
-    # FORCE SUB CHECK
+    # FORCE SUB
 
     join = await subscribed(
         client,
         user_id
     )
-
-    # USER NOT JOINED
 
     if not join:
 
@@ -176,7 +188,7 @@ async def start(client, message):
 
             [
                 InlineKeyboardButton(
-                    "📢 Join Updates",
+                    "📢 Join Updates Channel",
                     url="https://t.me/Anime_UpdatesAU"
                 )
             ],
@@ -202,15 +214,58 @@ async def start(client, message):
             reply_markup=buttons
         )
 
-    # START MENU
+    # START BUTTONS
+
+    buttons = InlineKeyboardMarkup([
+
+        [
+            InlineKeyboardButton(
+                "➕ Add Me To Your Group ➕",
+                url=f"https://t.me/{(await client.get_me()).username}?startgroup=true"
+            )
+        ],
+
+        [
+            InlineKeyboardButton(
+                "🎬 Movie Group",
+                url="https://t.me/Anime_UpdatesAU"
+            )
+        ],
+
+        [
+            InlineKeyboardButton(
+                "🆘 Help",
+                callback_data="help"
+            ),
+
+            InlineKeyboardButton(
+                "ℹ️ About",
+                callback_data="about"
+            )
+        ],
+
+        [
+            InlineKeyboardButton(
+                "📢 Join Updates Channel 📢",
+                url="https://t.me/Anime_UpdatesAU"
+            )
+        ]
+
+    ])
+
+    # START MESSAGE
+
+    text = START_TEXT.format(
+        mention=message.from_user.mention
+    )
 
     await message.reply_photo(
 
         photo=START_PIC,
 
-        caption=START_TEXT,
+        caption=text,
 
-        reply_markup=home_buttons()
+        reply_markup=buttons
     )
 # ---------------- HOME ----------------
 
@@ -459,6 +514,11 @@ async def send_page(
     query
 ):
 
+    import math
+    import time
+
+    start_time = time.time()
+
     start = page * PAGE_SIZE
     end = start + PAGE_SIZE
 
@@ -466,14 +526,86 @@ async def send_page(
 
     buttons = []
 
+    # TOP FILTER BUTTONS
+
+    buttons.append([
+
+        InlineKeyboardButton(
+            "📦 Send All",
+            callback_data="send_all"
+        ),
+
+        InlineKeyboardButton(
+            "🌐 LANGUAGES",
+            callback_data="languages"
+        ),
+
+        InlineKeyboardButton(
+            "📅 YEARS",
+            callback_data="years"
+        )
+
+    ])
+
+    buttons.append([
+
+        InlineKeyboardButton(
+            "🎞 QUALITY",
+            callback_data="quality"
+        ),
+
+        InlineKeyboardButton(
+            "📺 EPISODES",
+            callback_data="episodes"
+        ),
+
+        InlineKeyboardButton(
+            "📚 SEASONS",
+            callback_data="seasons"
+        )
+
+    ])
+
+    # MOVIE BUTTONS
+
     for movie in files:
+
+        size = movie.get(
+            "file_size",
+            0
+        )
+
+        # SIZE FORMAT
+
+        if size > 1024 * 1024 * 1024:
+
+            file_size = (
+                f"{size / (1024*1024*1024):.2f} GB"
+            )
+
+        else:
+
+            file_size = (
+                f"{size / (1024*1024):.2f} MB"
+            )
+
+        text = (
+            f"[{file_size}] "
+            f"{movie['file_name'][:45]}"
+        )
 
         buttons.append([
             InlineKeyboardButton(
-                movie["file_name"][:50],
+                text,
                 callback_data=f"movie#{str(movie['_id'])}"
             )
         ])
+
+    # PAGINATION
+
+    total_pages = math.ceil(
+        len(results) / PAGE_SIZE
+    )
 
     nav = []
 
@@ -481,51 +613,88 @@ async def send_page(
 
         nav.append(
             InlineKeyboardButton(
-                "⬅️ Back",
+                "⬅️ BACK",
                 callback_data=f"page#{page-1}"
             )
         )
+
+    nav.append(
+        InlineKeyboardButton(
+            f"{page+1}/{total_pages}",
+            callback_data="pages"
+        )
+    )
 
     if end < len(results):
 
         nav.append(
             InlineKeyboardButton(
-                "Next ➡️",
+                "NEXT ➡️",
                 callback_data=f"page#{page+1}"
             )
         )
 
-    if nav:
-        buttons.append(nav)
+    buttons.append(nav)
+
+    # SEARCH TIME
+
+    search_time = (
+        round(
+            time.time() - start_time,
+            2
+        )
+    )
+
+    # CAPTION
+
+    caption = (
+
+        f"🔎 THE RESULTS FOR ➥ {query}\n\n"
+
+        f"🙋 REQUESTED BY ➥ "
+        f"{message.from_user.mention}\n\n"
+
+        f"⚡ RESULT SHOW IN ➥ "
+        f"{search_time} SECONDS\n\n"
+
+        f"⚠️ AFTER 10 MINUTES "
+        f"THIS MESSAGE WILL BE "
+        f"AUTOMATICALLY DELETED 🗑"
+    )
 
     imdb = get_imdb(query)
 
-    caption = (
-        f"🔎 Results For : {query}"
-    )
-
-    if imdb:
-
-        caption = (
-            f"🎬 {imdb['title']} ({imdb['year']})\n"
-            f"⭐ IMDB : {imdb['rating']}\n"
-            f"🎭 Genre : {imdb['genre']}"
-        )
+    # IMDB POSTER
 
     if imdb and imdb["poster"] != "N/A":
 
-        await message.reply_photo(
-            imdb["poster"],
+        sent = await message.reply_photo(
+
+            photo=imdb["poster"],
+
             caption=caption,
+
             reply_markup=InlineKeyboardMarkup(buttons)
         )
 
     else:
 
-        await message.reply_text(
+        sent = await message.reply_text(
+
             caption,
+
             reply_markup=InlineKeyboardMarkup(buttons)
         )
+
+    # AUTO DELETE SEARCH MESSAGE
+
+    await asyncio.sleep(600)
+
+    try:
+        await sent.delete()
+
+    except:
+        pass
 
 # ---------------- CALLBACK ----------------
 
@@ -589,7 +758,54 @@ async def callback(
             pass
 
     # ---------------- PAGINATION ----------------
+    elif data == "pages":
 
+        await query.answer(
+            "📄 Page Navigation"
+        )
+
+    elif data == "send_all":
+
+        await query.answer(
+            "❌ Send All Not Added Yet",
+            show_alert=True
+        )
+
+    elif data == "languages":
+
+        await query.answer(
+            "🌐 Language Filter Coming Soon",
+            show_alert=True
+        )
+
+    elif data == "years":
+
+        await query.answer(
+            "📅 Year Filter Coming Soon",
+            show_alert=True
+        )
+
+    elif data == "quality":
+
+        await query.answer(
+            "🎞 Quality Filter Coming Soon",
+            show_alert=True
+        )
+
+    elif data == "episodes":
+
+        await query.answer(
+            "📺 Episode Filter Coming Soon",
+            show_alert=True
+        )
+
+    elif data == "seasons":
+
+        await query.answer(
+            "📚 Season Filter Coming Soon",
+            show_alert=True
+        )
+        
     elif data.startswith("page#"):
 
         page = int(
