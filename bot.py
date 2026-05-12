@@ -571,8 +571,6 @@ async def callback(
             ),
 
             reply_markup=buttons,
-
-            protect_content=False
         )
 
         await query.answer()
