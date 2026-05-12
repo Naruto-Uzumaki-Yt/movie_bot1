@@ -13,6 +13,7 @@ db = mongo["MovieBot"]
 
 movies = db.movies
 users = db.users
+chats = db.chats
 
 # ------------------------- #
 # Don't Remove Credit 
@@ -30,18 +31,28 @@ async def add_movie(data):
     if not existing:
         await movies.insert_one(data)
 
+# ------------------------- #
+# Don't Remove Credit 
+# Ask Doubt @AU_Bot_Discussion 
+# Owner @Mr_Mohammed_29 
+# ------------------------- #
 
 async def add_user(user_id):
 
-    user = await users.find_one(
-        {"user_id": user_id}
+    await users.update_one(
+        {"_id": user_id},
+        {"$setOnInsert": {"_id": user_id}},
+        upsert=True
     )
 
-    if not user:
-        await users.insert_one(
-            {"user_id": user_id}
-        )
+async def add_chat(chat_id):
 
+    await chats.update_one(
+        {"_id": chat_id},
+        {"$setOnInsert": {"_id": chat_id}},
+        upsert=True
+    )
+    
 # ------------------------- #
 # Don't Remove Credit 
 # Ask Doubt @AU_Bot_Discussion 
