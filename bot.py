@@ -318,11 +318,20 @@ async def check_sub_callback(
 @app.on_message(
     filters.channel
     & filters.chat(LOG_CHANNEL)
-    & (filters.document | filters.video)
 )
 async def save_movie(client, message):
 
-    media = message.document or message.video
+    media = None
+
+    # DOCUMENT
+
+    if message.document:
+        media = message.document
+
+    # VIDEO
+
+    elif message.video:
+        media = message.video
 
     if not media:
         return
@@ -342,9 +351,13 @@ async def save_movie(client, message):
 
     }
 
+    # SAVE TO DATABASE
+
     await add_movie(data)
 
-    print(f"✅ Saved : {file_name}")
+    print(
+        f"✅ Saved : {file_name}"
+    )
 
 # ---------------- FORCE SUB ----------------
 
