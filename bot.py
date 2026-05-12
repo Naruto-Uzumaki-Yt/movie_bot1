@@ -400,14 +400,47 @@ async def save_movie(client, message):
     if not file_name:
         file_name = "Movie"
 
+    file_name_lower = file_name.lower()
+
+    # ---------------- YEAR ----------------
+    year = None
+    for y in range(1980, 2031):
+        if str(y) in file_name:
+            year = y
+            break
+
+    # ---------------- LANGUAGE ----------------
+    if "hindi" in file_name_lower:
+        language = "Hindi"
+    elif "english" in file_name_lower:
+        language = "English"
+    elif "tamil" in file_name_lower:
+        language = "Tamil"
+    else:
+        language = "Unknown"
+
+    # ---------------- QUALITY ----------------
+    if "1080p" in file_name_lower:
+        quality = "1080p"
+    elif "720p" in file_name_lower:
+        quality = "720p"
+    elif "480p" in file_name_lower:
+        quality = "480p"
+    else:
+        quality = "Unknown"
+
+    # ---------------- FINAL DATA ----------------
     data = {
-
         "file_name": file_name,
-
         "file_id": media.file_id,
+        "file_size": media.file_size,
 
-        "file_size": media.file_size
-
+        "year": year,
+        "language": language,
+        "quality": quality,
+ 
+        "season": None,
+        "episode": None
     }
 
     # SAVE TO DATABASE
@@ -727,6 +760,87 @@ async def callback(
 ):
 
     data = query.data
+
+    if data == "languages":
+
+    results = []
+    async for movie in movies.find({"language": "Hindi"}):
+        results.append(movie)
+
+    if not results:
+        return await query.answer("No Hindi movies found", show_alert=True)
+
+    search_cache[query.from_user.id] = results
+
+    await send_page(query.message, results, 0, "Hindi Movies")
+
+    return
+
+    elif data == "years":
+
+    results = []
+    async for movie in movies.find({"year": {"$ne": None}}):
+        results.append(movie)
+
+    if not results:
+        return await query.answer("No year data found", show_alert=True)
+
+    search_cache[query.from_user.id] = results
+
+    await send_page(query.message, results, 0, "Year Movies")
+
+    return
+
+    elif data == "quality":
+
+    results = []
+    async for movie in movies.find({"quality": "1080p"}):
+        results.append(movie)
+
+    if not results:
+        return await query.answer("No 1080p movies found", show_alert=True)
+
+    search_cache[query.from_user.id] = results
+
+    await send_page(query.message, results, 0, "1080p Movies")
+
+    return
+
+    elif data == "send_all":
+
+    results = []
+    async for movie in movies.find({}):
+        results.append(movie)
+
+    search_cache[query.from_user.id] = results
+
+    await send_page(query.message, results, 0, "All Movies")
+
+    return
+
+    elif data == "episodes":
+
+    results = []
+    async for movie in movies.find({"episode": {"$ne": None}}):
+        results.append(movie)
+
+    search_cache[query.from_user.id] = results
+
+    await send_page(query.message, results, 0, "Episodes")
+
+    return
+
+    elif data == "seasons":
+
+    results = []
+    async for movie in movies.find({"season": {"$ne": None}}):
+        results.append(movie)
+
+    search_cache[query.from_user.id] = results
+
+    await send_page(query.message, results, 0, "Seasons")
+
+    return 
 
     if data.startswith("movie#"):
 
