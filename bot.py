@@ -227,7 +227,7 @@ async def start(client, message):
         [
             InlineKeyboardButton(
                 "🎬 Movie Group",
-                url="https://t.me/Anime_UpdatesAU"
+                url="https://t.me/+T4P7LlcCTNtkNTFl"
             )
         ],
 
@@ -701,23 +701,6 @@ async def send_page(
         pass
 
 # ---------------- CALLBACK ----------------
-if query.data == "refresh_stats":
-
-    if query.from_user.id not in ADMINS:
-        return await query.answer("Not allowed", show_alert=True)
-
-    text = await get_stats_text()
-
-    btn = InlineKeyboardMarkup([
-        [
-            InlineKeyboardButton("🔄 Refresh", callback_data="refresh_stats")
-        ]
-    ])
-
-    await query.message.edit_text(text, reply_markup=btn)
-
-    return await query.answer("Updated ✅")
-    
 
 async def get_stats_text():
 
@@ -796,6 +779,23 @@ async def callback(
         except:
             pass
 
+if query.data == "refresh_stats":
+
+    if query.from_user.id not in ADMINS:
+        return await query.answer("Not allowed", show_alert=True)
+
+    text = await get_stats_text()
+
+    btn = InlineKeyboardMarkup([
+        [
+            InlineKeyboardButton("🔄 Refresh", callback_data="refresh_stats")
+        ]
+    ])
+
+    await query.message.edit_text(text, reply_markup=btn)
+
+    return await query.answer("Updated ✅")
+    
     # ---------------- PAGINATION ----------------
     elif data == "pages":
 
