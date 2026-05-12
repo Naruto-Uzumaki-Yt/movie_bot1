@@ -1029,28 +1029,28 @@ async def callback(
             buttons.append([
                 InlineKeyboardButton(
                     movie["file_name"][:50],
-  callback_data=f"movie#{movie['_id']}"
-                  )
-              ])
+   callback_data=f"movie#{movie['_id']}"
+           )
+         ])
 
-          nav = []
+        nav = []
 
-          if page > 0:
-              nav.append(
-                  InlineKeyboardButton("⬅️ Back", callback_data=f"page#{page-1}")
-              )
+        if page > 0:
+            nav.append(
+                InlineKeyboardButton("⬅️ Back", callback_data=f"page#{page-1}")
+            )
 
-          if end < len(results):
-              nav.append(
-                  InlineKeyboardButton("Next ➡️", callback_data=f"page#{page+1}")
-              )
+        if end < len(results):
+            nav.append(
+                InlineKeyboardButton("Next ➡️", callback_data=f"page#{page+1}")
+            )
 
-          if nav:
-              buttons.append(nav)
+        if nav:
+            buttons.append(nav)
 
-          await query.message.edit_reply_markup(
-              InlineKeyboardMarkup(buttons)
-          )
+        await query.message.edit_reply_markup(
+            InlineKeyboardMarkup(buttons)
+        )
 
 # ---------------- STATS ----------------
 
