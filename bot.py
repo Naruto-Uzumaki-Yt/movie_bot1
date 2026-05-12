@@ -698,6 +698,23 @@ async def send_page(
 
 # ---------------- CALLBACK ----------------
 
+if data == "refresh_stats":
+
+    if query.from_user.id not in ADMINS:
+        return await query.answer("Not allowed", show_alert=True)
+
+    text = await get_stats_text()
+
+    btn = InlineKeyboardMarkup([
+        [
+            InlineKeyboardButton("🔄 Refresh", callback_data="refresh_stats")
+        ]
+    ])
+
+    await query.message.edit_text(text, reply_markup=btn)
+
+    await query.answer("Updated ✅")
+
 @app.on_callback_query()
 async def callback(
     client,
@@ -864,29 +881,63 @@ async def callback(
 
 # ---------------- STATS ----------------
 
-@app.on_message(
-    filters.command("stats")
-)
-async def stats(
-    client,
-    message
-):
+@app.on_message(filters.command("stats"))
+async def stats(client, message):
+
     if message.from_user.id not in ADMINS:
         return
-    
-    total_users = (
-        await users.count_documents({})
-    )
 
-    total_movies = (
-        await movies.count_documents({})
-    )
+    text = await get_stats_text()
 
-    text = (
-        f"📊 Bot Stats\n\n"
-        f"👤 Users : {total_users}\n"
-        f"🎬 Movies : {total_movies}"
-    )
+    btn = InlineKeyboardMarkup([
+        [
+            InlineKeyboardButton("🔄 Refresh", callback_data="refresh_stats")
+        ]
+    ])
+
+    await message.reply_text(text, reply_markup=btn)
+
+@app.on_message(filters.command("broadcast"))
+async def broadcast(client, message):
+
+    if message.from_user.id not in ADMINS:
+        return
+
+    if not message.reply_to_message:
+        return await message.reply_text("Reply to a message to broadcast.")
+
+    msg = message.reply_to_message
+
+    users_list = users.find({})
+
+    sent = 0
+
+    async for user in users_list:
+        try:
+            await msg.copy(user["_id"])
+            sent += 1
+        except:
+            pass
+
+    await message.reply_text(f"📢 Broadcast sent to {sent} users")
+
+#------------- INFO USER -------------#
+
+@app.on_message(filters.command("info"))
+async def info(client, message):
+
+    if message.reply_to_message:
+        user = message.reply_to_message.from_user
+    else:
+        user = message.from_user
+
+    text = f"""
+👤 User Info
+
+🆔 ID: {user.id}
+👤 Name: {user.first_name}
+📛 Username: @{user.username if user.username else 'None'}
+"""
 
     await message.reply_text(text)
 
