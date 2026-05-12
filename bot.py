@@ -468,7 +468,7 @@ async def send_page(
         buttons.append([
             InlineKeyboardButton(
                 movie["file_name"][:50],
-                callback_data=f"movie#{movie['file_id']}"
+                callback_data=f"movie#{str(movie['_id'])}"
             )
         ])
 
@@ -536,11 +536,21 @@ async def callback(
 
     if data.startswith("movie#"):
 
-        file_id = data.split("#")[1]
+        from bson import ObjectId
+
+        movie_id = data.split("#")[1]
 
         movie = await movies.find_one({
-            "file_id": file_id
+            "_id": ObjectId(movie_id)
         })
+
+        if not movie:
+            return await query.answer(
+                "Movie not found",
+                show_alert=True
+            )
+
+        file_id = movie["file_id"]
 
         buttons = InlineKeyboardMarkup([
             [
@@ -604,7 +614,7 @@ async def callback(
             buttons.append([
                 InlineKeyboardButton(
                     movie["file_name"][:50],
-                    callback_data=f"movie#{movie['file_id']}"
+                    callback_data=f"movie#{str(movie['_id'])}"
                 )
             ])
 
