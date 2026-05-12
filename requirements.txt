@@ -11,6 +11,7 @@ flask
 gunicorn
 dnspython
 requests
+pymongo
 
 # ------------------------- #
 # Don't Remove Credit 
