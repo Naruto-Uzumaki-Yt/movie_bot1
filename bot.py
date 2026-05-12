@@ -159,12 +159,59 @@ async def start(client, message):
 
     await add_user(message.from_user.id)
 
-    await message.reply_animation(
-        animation=START_PIC,
-        caption=START_TEXT,
-        reply_markup=home_buttons()
+    user_id = message.from_user.id
+
+    # FORCE SUB CHECK
+
+    join = await subscribed(
+        client,
+        user_id
     )
 
+    # NOT JOINED
+
+    if not join:
+
+        buttons = InlineKeyboardMarkup([
+
+            [
+                InlineKeyboardButton(
+                    "📢 Join Updates",
+                    url="https://t.me/Anime_UpdatesAU"
+                )
+            ],
+
+            [
+                InlineKeyboardButton(
+                    "🔄 Try Again",
+                    callback_data="checksub"
+                )
+            ]
+
+        ])
+
+        return await message.reply_photo(
+
+            photo=START_PIC,
+
+            caption=(
+                "⚠️ Join updates channel first "
+                "to use this bot."
+            ),
+
+            reply_markup=buttons
+        )
+
+    # START MENU
+
+    await message.reply_photo(
+
+        photo=START_PIC,
+
+        caption=START_TEXT,
+
+        reply_markup=home_buttons()
+    )
 # ---------------- HOME ----------------
 
 @app.on_callback_query(filters.regex("home"))
@@ -232,6 +279,50 @@ async def owner_callback(client, query):
         reply_markup=buttons
     )
 
+# ---------------- CHECK SUB ----------------
+
+@app.on_callback_query(
+    filters.regex("checksub")
+)
+async def check_sub_callback(
+    client,
+    query
+):
+
+    user_id = query.from_user.id
+
+    join = await subscribed(
+        client,
+        user_id
+    )
+
+    # STILL NOT JOINED
+
+    if not join:
+
+        return await query.answer(
+            "Join updates channel first.",
+            show_alert=True
+        )
+
+    # JOINED SUCCESS
+
+    await query.message.edit_media(
+
+        media=query.message.photo.file_id
+    )
+
+    await query.message.edit_caption(
+
+        caption=START_TEXT,
+
+        reply_markup=home_buttons()
+    )
+
+    await query.answer(
+        "✅ Subscription verified"
+    )
+    
 # ---------------- SAVE MOVIES ----------------
 
 @app.on_message(
@@ -264,18 +355,27 @@ async def save_movie(client, message):
 
 async def subscribed(client, user_id):
 
+    # OWNER BYPASS
+
+    if user_id in ADMINS:
+        return True
+
     try:
 
-        await client.get_chat_member(
+        member = await client.get_chat_member(
             f"@{FORCE_SUB}",
             user_id
         )
 
-        return True
+        if member.status in [
+            "member",
+            "administrator",
+            "creator"
+        ]:
+            return True
 
     except:
         return False
-
 # ---------------- SEARCH ----------------
 
 @app.on_message(
