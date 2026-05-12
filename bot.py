@@ -760,87 +760,93 @@ async def callback(
 ):
 
     data = query.data
-
+    
+    #Language 
     if data == "languages":
 
-    results = []
-    async for movie in movies.find({"language": "Hindi"}):
-        results.append(movie)
+        results = []
+        async for movie in movies.find({"language": "Hindi"}):
+            results.append(movie)
 
-    if not results:
-        return await query.answer("No Hindi movies found", show_alert=True)
+        if not results:
+            return await query.answer("No Hindi movies found", show_alert=True)
 
-    search_cache[query.from_user.id] = results
+        search_cache[query.from_user.id] = results
 
-    await send_page(query.message, results, 0, "Hindi Movies")
+        await send_page(query.message, results, 0, "Hindi Movies")
 
-    return
-
+        return
+        
+    #years
     elif data == "years":
 
-    results = []
-    async for movie in movies.find({"year": {"$ne": None}}):
-        results.append(movie)
+        results = []
+        async for movie in movies.find({"year": {"$ne": None}}):
+            results.append(movie)
 
-    if not results:
-        return await query.answer("No year data found", show_alert=True)
+        if not results:
+            return await query.answer("No year data found", show_alert=True)
+ 
+        search_cache[query.from_user.id] = results
 
-    search_cache[query.from_user.id] = results
+        await send_page(query.message, results, 0, "Year Movies")
 
-    await send_page(query.message, results, 0, "Year Movies")
+        return
 
-    return
-
+    #quality 
     elif data == "quality":
 
-    results = []
-    async for movie in movies.find({"quality": "1080p"}):
-        results.append(movie)
+        results = []
+        async for movie in movies.find({"quality": "1080p"}):
+            results.append(movie)
 
-    if not results:
-        return await query.answer("No 1080p movies found", show_alert=True)
+        if not results:
+            return await query.answer("No 1080p movies found", show_alert=True)
 
-    search_cache[query.from_user.id] = results
+        search_cache[query.from_user.id] = results
 
-    await send_page(query.message, results, 0, "1080p Movies")
+        await send_page(query.message, results, 0, "1080p Movies")
 
-    return
+        return
 
+    #Sendall
     elif data == "send_all":
 
-    results = []
-    async for movie in movies.find({}):
-        results.append(movie)
+        results = []
+        async for movie in movies.find({}):
+            results.append(movie)
 
-    search_cache[query.from_user.id] = results
+        search_cache[query.from_user.id] = results
 
-    await send_page(query.message, results, 0, "All Movies")
+        await send_page(query.message, results, 0, "All Movies")
 
-    return
-
+        return
+        
+    #Episodes    
     elif data == "episodes":
 
-    results = []
-    async for movie in movies.find({"episode": {"$ne": None}}):
-        results.append(movie)
+        results = []
+        async for movie in movies.find({"episode": {"$ne": None}}):
+            results.append(movie)
 
-    search_cache[query.from_user.id] = results
+        search_cache[query.from_user.id] = results
 
-    await send_page(query.message, results, 0, "Episodes")
+        await send_page(query.message, results, 0, "Episodes")
 
-    return
-
+        return
+        
+    #Seasons
     elif data == "seasons":
 
-    results = []
-    async for movie in movies.find({"season": {"$ne": None}}):
-        results.append(movie)
+        results = []
+        async for movie in movies.find({"season": {"$ne": None}}):
+            results.append(movie)
 
-    search_cache[query.from_user.id] = results
+        search_cache[query.from_user.id] = results
 
-    await send_page(query.message, results, 0, "Seasons")
+        await send_page(query.message, results, 0, "Seasons")
 
-    return 
+        return 
 
     if data.startswith("movie#"):
 
