@@ -916,110 +916,157 @@ if query.data == "refresh_stats":
 
     return await query.answer("Updated ✅")
     
-    # ---------------- PAGINATION ----------------
-    elif data == "pages":
+    # ---------------- PAGINATION + FILTERS ----------------
 
-        await query.answer(
-            "📄 Page Navigation"
-        )
+if data == "refresh_stats":
+    if query.from_user.id not in ADMINS:
+        return await query.answer("Not allowed", show_alert=True)
 
-    elif data == "send_all":
+    text = await get_stats_text()
 
-        await query.answer(
-            "❌ Send All Not Added Yet",
-            show_alert=True
-        )
+    btn = InlineKeyboardMarkup([
+        [InlineKeyboardButton("🔄 Refresh", callback_data="refresh_stats")]
+    ])
 
-    elif data == "languages":
+    await query.message.edit_text(text, reply_markup=btn)
+    return await query.answer("Updated ✅")
 
-        await query.answer(
-            "🌐 Language Filter Coming Soon",
-            show_alert=True
-        )
 
-    elif data == "years":
+elif data == "send_all":
 
-        await query.answer(
-            "📅 Year Filter Coming Soon",
-            show_alert=True
-        )
+    results = []
+    async for movie in movies.find({}):
+        results.append(movie)
 
-    elif data == "quality":
+    if not results:
+        return await query.answer("No movies found", show_alert=True)
 
-        await query.answer(
-            "🎞 Quality Filter Coming Soon",
-            show_alert=True
-        )
+    search_cache[query.from_user.id] = results
 
-    elif data == "episodes":
+    await send_page(query.message, results, 0, "All Movies")
+    return
 
-        await query.answer(
-            "📺 Episode Filter Coming Soon",
-            show_alert=True
-        )
 
-    elif data == "seasons":
+elif data == "languages":
 
-        await query.answer(
-            "📚 Season Filter Coming Soon",
-            show_alert=True
-        )
-        
-    elif data.startswith("page#"):
+    results = []
+    async for movie in movies.find({"language": "Hindi"}):
+        results.append(movie)
 
-        page = int(
-            data.split("#")[1]
-        )
+    if not results:
+        return await query.answer("No Hindi movies found", show_alert=True)
 
-        results = search_cache.get(
-            query.from_user.id
-        )
+    search_cache[query.from_user.id] = results
 
-        if not results:
-            return
+    await send_page(query.message, results, 0, "Hindi Movies")
+    return
 
-        start = page * PAGE_SIZE
-        end = start + PAGE_SIZE
 
-        files = results[start:end]
+elif data == "years":
 
-        buttons = []
+    results = []
+    async for movie in movies.find({"year": {"$ne": None}}):
+        results.append(movie)
 
-        for movie in files:
+    if not results:
+        return await query.answer("No year data found", show_alert=True)
 
-            buttons.append([
-                InlineKeyboardButton(
-                    movie["file_name"][:50],
-                    callback_data=f"movie#{str(movie['_id'])}"
-                )
-            ])
+    search_cache[query.from_user.id] = results
 
-        nav = []
+    await send_page(query.message, results, 0, "Year Movies")
+    return
 
-        if page > 0:
 
-            nav.append(
-                InlineKeyboardButton(
-                    "⬅️ Back",
-                    callback_data=f"page#{page-1}"
-                )
+elif data == "quality":
+
+    results = []
+    async for movie in movies.find({"quality": "1080p"}):
+        results.append(movie)
+
+    if not results:
+        return await query.answer("No 1080p movies found", show_alert=True)
+
+    search_cache[query.from_user.id] = results
+
+    await send_page(query.message, results, 0, "1080p Movies")
+    return
+
+
+elif data == "episodes":
+
+    results = []
+    async for movie in movies.find({"episode": {"$ne": None}}):
+        results.append(movie)
+
+    if not results:
+        return await query.answer("No episodes found", show_alert=True)
+
+    search_cache[query.from_user.id] = results
+
+    await send_page(query.message, results, 0, "Episodes")
+    return
+
+
+elif data == "seasons":
+
+    results = []
+    async for movie in movies.find({"season": {"$ne": None}}):
+        results.append(movie)
+
+    if not results:
+        return await query.answer("No seasons found", show_alert=True)
+
+    search_cache[query.from_user.id] = results
+
+    await send_page(query.message, results, 0, "Seasons")
+    return
+
+
+elif data == "pages":
+    await query.answer("📄 Page Navigation")
+
+
+elif data.startswith("page#"):
+
+    page = int(data.split("#")[1])
+
+    results = search_cache.get(query.from_user.id)
+    if not results:
+        return await query.answer("No data", show_alert=True)
+
+    start = page * PAGE_SIZE
+    end = start + PAGE_SIZE
+
+    files = results[start:end]
+
+    buttons = []
+
+    for movie in files:
+        buttons.append([
+            InlineKeyboardButton(
+                movie["file_name"][:50],
+                callback_data=f"movie#{movie['_id']}"
             )
+        ])
 
-        if end < len(results):
+    nav = []
 
-            nav.append(
-                InlineKeyboardButton(
-                    "Next ➡️",
-                    callback_data=f"page#{page+1}"
-                )
-            )
-
-        if nav:
-            buttons.append(nav)
-
-        await query.message.edit_reply_markup(
-            InlineKeyboardMarkup(buttons)
+    if page > 0:
+        nav.append(
+            InlineKeyboardButton("⬅️ Back", callback_data=f"page#{page-1}")
         )
+
+    if end < len(results):
+        nav.append(
+            InlineKeyboardButton("Next ➡️", callback_data=f"page#{page+1}")
+        )
+
+    if nav:
+        buttons.append(nav)
+
+    await query.message.edit_reply_markup(
+        InlineKeyboardMarkup(buttons)
+    )
 
 # ---------------- STATS ----------------
 
