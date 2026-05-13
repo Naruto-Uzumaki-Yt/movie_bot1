@@ -771,28 +771,31 @@ async def callback(
 
         await query.message.edit_text(text, reply_markup=btn)
         return await query.answer("Updated ✅")
-        
+
     elif data == "languages":
 
-    btn = InlineKeyboardMarkup([
-        [
-            InlineKeyboardButton("Hindi", callback_data="lang#Hindi"),
-            InlineKeyboardButton("English", callback_data="lang#English")
-        ],
-        [
-            InlineKeyboardButton("Tamil", callback_data="lang#Tamil"),
-            InlineKeyboardButton("Telugu", callback_data="lang#Telugu")
-        ],
-        [
-            InlineKeyboardButton("Malayalam", callback_data="lang#Malayalam"),
-            InlineKeyboardButton("Kannada", callback_data="lang#Kannada")
-        ],
-        [
-            InlineKeyboardButton("⬅️ Back", callback_data="back_home")
-        ]
-    ])
+        btn = InlineKeyboardMarkup([
+            [
+                InlineKeyboardButton("Hindi", callback_data="lang#Hindi"),
+                InlineKeyboardButton("English", callback_data="lang#English")
+            ],
+            [
+                InlineKeyboardButton("Tamil", callback_data="lang#Tamil"),
+                InlineKeyboardButton("Telugu", callback_data="lang#Telugu")
+            ],
+            [
+                InlineKeyboardButton("Malayalam", callback_data="lang#Malayalam"),
+                InlineKeyboardButton("Kannada", callback_data="lang#Kannada")
+            ],
+            [
+                InlineKeyboardButton("⬅️ Back", callback_data="back_home")
+            ]
+        ])
 
-    await query.message.edit_text("🌐 Select Language:", reply_markup=btn)
+        await query.message.edit_text(
+            "🌐 Choose Language:",
+            reply_markup=btn
+        )
 
     elif data.startswith("lang#"):
 
