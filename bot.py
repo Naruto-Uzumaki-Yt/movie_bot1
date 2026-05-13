@@ -401,47 +401,36 @@ async def save_movie(client, message):
         file_name = "Movie"
 
     file_name_lower = file_name.lower()
+file_name_lower = file_name.lower()
 
-    # ---------------- YEAR ----------------
-    year = None
-    for y in range(1980, 2031):
-        if str(y) in file_name:
-            year = y
+# ---------------- SEASON ----------------
+season = None
+for s in range(1, 21):
+    if f"s{s}" in file_name_lower or f"season {s}" in file_name_lower:
+        season = s
+        break
+
+# ---------------- EPISODE ----------------
+episode = None
+if "episode" in file_name_lower:
+    for e in range(1, 500):
+        if f"e{e}" in file_name_lower or f"episode {e}" in file_name_lower:
+            episode = e
             break
 
-    # ---------------- LANGUAGE ----------------
-    if "hindi" in file_name_lower:
-        language = "Hindi"
-    elif "english" in file_name_lower:
-        language = "English"
-    elif "tamil" in file_name_lower:
-        language = "Tamil"
-    else:
-        language = "Unknown"
+# ---------------- FINAL DATA ----------------
+data = {
+    "file_name": file_name,
+    "file_id": media.file_id,
+    "file_size": media.file_size,
 
-    # ---------------- QUALITY ----------------
-    if "1080p" in file_name_lower:
-        quality = "1080p"
-    elif "720p" in file_name_lower:
-        quality = "720p"
-    elif "480p" in file_name_lower:
-        quality = "480p"
-    else:
-        quality = "Unknown"
+    "year": None,
+    "language": None,
+    "quality": None,
 
-    # ---------------- FINAL DATA ----------------
-    data = {
-        "file_name": file_name,
-        "file_id": media.file_id,
-        "file_size": media.file_size,
-
-        "year": year,
-        "language": language,
-        "quality": quality,
- 
-        "season": None,
-        "episode": None
-    }
+    "season": season,
+    "episode": episode
+}
 
     # SAVE TO DATABASE
 
@@ -542,6 +531,17 @@ async def search_movie(
         query
     )
 
+def apply_filter(results, key, value):
+    filtered = []
+
+    for movie in results:
+        if movie.get(key) is None:
+            continue
+
+        if str(movie.get(key)).lower() == str(value).lower():
+            filtered.append(movie)
+
+    return filtered
 # ---------------- SEND PAGE ----------------
 
 async def send_page(
@@ -776,93 +776,209 @@ async def callback(
         await query.message.edit_text(text, reply_markup=btn)
         return await query.answer("Updated ✅")
         
-    #Language 
-    if data == "languages":
+    elif data == "languages":
 
-        results = []
-        async for movie in movies.find({"language": "Hindi"}):
-            results.append(movie)
+    btn = InlineKeyboardMarkup([
+        [
+            InlineKeyboardButton("Hindi", callback_data="lang#Hindi"),
+            InlineKeyboardButton("English", callback_data="lang#English")
+        ],
+        [
+            InlineKeyboardButton("Tamil", callback_data="lang#Tamil"),
+            InlineKeyboardButton("Telugu", callback_data="lang#Telugu")
+        ],
+        [
+            InlineKeyboardButton("Malayalam", callback_data="lang#Malayalam"),
+            InlineKeyboardButton("Kannada", callback_data="lang#Kannada")
+        ],
+        [
+            InlineKeyboardButton("⬅️ Back", callback_data="back_home")
+        ]
+    ])
 
-        if not results:
-            return await query.answer("No Hindi movies found", show_alert=True)
+    await query.message.edit_text("🌐 Select Language:", reply_markup=btn)
 
-        search_cache[query.from_user.id] = results
+    elif data.startswith("lang#"):
 
-        await send_page(query.message, results, 0, "Hindi Movies")
+    lang = data.split("#")[1]
 
-        return
-        
-    #years
-    elif data == "years":
+    results = search_cache.get(query.from_user.id)
+    if not results:
+        return await query.answer("No results", show_alert=True)
 
-        results = []
-        async for movie in movies.find({"year": {"$ne": None}}):
-            results.append(movie)
+    filtered = apply_filter(results, "language", lang)
 
-        if not results:
-            return await query.answer("No year data found", show_alert=True)
- 
-        search_cache[query.from_user.id] = results
+    search_cache[query.from_user.id] = filtered
 
-        await send_page(query.message, results, 0, "Year Movies")
+    await send_page(query.message, filtered, 0, lang)
 
-        return
-
-    #quality 
     elif data == "quality":
 
-        results = []
-        async for movie in movies.find({"quality": "1080p"}):
-            results.append(movie)
+    btn = InlineKeyboardMarkup([
+        [
+            InlineKeyboardButton("480p", callback_data="q#480p"),
+            InlineKeyboardButton("720p", callback_data="q#720p"),
+            InlineKeyboardButton("1080p", callback_data="q#1080p")
+        ],
+        [
+            InlineKeyboardButton("⬅️ Back", callback_data="back_home")
+        ]
+    ])
 
-        if not results:
-            return await query.answer("No 1080p movies found", show_alert=True)
+    await query.message.edit_text("🎞 Select Quality:", reply_markup=btn)
 
-        search_cache[query.from_user.id] = results
+    elif data.startswith("q#"):
 
-        await send_page(query.message, results, 0, "1080p Movies")
+    quality = data.split("#")[1]
 
-        return
+    results = search_cache.get(query.from_user.id)
+    if not results:
+        return await query.answer("No results", show_alert=True)
 
-    #Sendall
+    filtered = apply_filter(results, "quality", quality)
+
+    search_cache[query.from_user.id] = filtered
+
+    await send_page(query.message, filtered, 0, quality)
+
+    elif data == "years":
+
+    btn = InlineKeyboardMarkup([
+        [
+            InlineKeyboardButton("2022", callback_data="y#2022"),
+            InlineKeyboardButton("2023", callback_data="y#2023")
+        ],
+        [
+            InlineKeyboardButton("2024", callback_data="y#2024"),
+            InlineKeyboardButton("2025", callback_data="y#2025")
+        ],
+        [
+            InlineKeyboardButton("⬅️ Back", callback_data="back_home")
+        ]
+    ])
+
+    await query.message.edit_text("📅 Select Year:", reply_markup=btn)
+
+    elif data.startswith("y#"):
+
+    year = data.split("#")[1]
+
+    results = search_cache.get(query.from_user.id)
+    if not results:
+        return await query.answer("No results", show_alert=True)
+
+    filtered = apply_filter(results, "year", year)
+
+    search_cache[query.from_user.id] = filtered
+
+    await send_page(query.message, filtered, 0, year)
+
     elif data == "send_all":
 
-        results = []
-        async for movie in movies.find({}):
-            results.append(movie)
+    results = search_cache.get(query.from_user.id)
+    if not results:
+        return await query.answer("No results", show_alert=True)
 
-        search_cache[query.from_user.id] = results
+    await send_page(query.message, results, 0, "ALL MOVIES")
 
-        await send_page(query.message, results, 0, "All Movies")
+    elif data == "back_home":
 
-        return
-        
-    #Episodes    
-    elif data == "episodes":
+    await query.message.edit_caption(
+        caption=START_TEXT,
+        reply_markup=home_buttons()
+    )
 
-        results = []
-        async for movie in movies.find({"episode": {"$ne": None}}):
-            results.append(movie)
-
-        search_cache[query.from_user.id] = results
-
-        await send_page(query.message, results, 0, "Episodes")
-
-        return
-        
-    #Seasons
     elif data == "seasons":
 
-        results = []
-        async for movie in movies.find({"season": {"$ne": None}}):
-            results.append(movie)
+    btn = []
 
-        search_cache[query.from_user.id] = results
+    row = []
 
-        await send_page(query.message, results, 0, "Seasons")
+    for i in range(1, 21):
+        row.append(
+            InlineKeyboardButton(
+                f"Season {i}",
+                callback_data=f"season#{i}"
+            )
+        )
 
-        return 
+        if len(row) == 4:
+            btn.append(row)
+            row = []
 
+    if row:
+        btn.append(row)
+
+    btn.append([
+        InlineKeyboardButton("⬅️ Back", callback_data="back_home")
+    ])
+
+    await query.message.edit_text(
+        "📚 Select Season:",
+        reply_markup=InlineKeyboardMarkup(btn)
+    )
+
+    elif data.startswith("season#"):
+
+    season = int(data.split("#")[1])
+
+    results = search_cache.get(query.from_user.id)
+    if not results:
+        return await query.answer("No results", show_alert=True)
+
+    filtered = [m for m in results if m.get("season") == season]
+
+    search_cache[query.from_user.id] = filtered
+
+    await send_page(query.message, filtered, 0, f"Season {season}")
+
+    elif data == "episodes":
+
+    btn = []
+
+    row = []
+
+    for i in range(1, 51):
+        row.append(
+            InlineKeyboardButton(
+                f"E{i}",
+                callback_data=f"ep#{i}"
+            )
+        )
+
+        if len(row) == 5:
+            btn.append(row)
+            row = []
+
+    if row:
+        btn.append(row)
+
+    btn.append([
+        InlineKeyboardButton("⬅️ Back", callback_data="back_home")
+    ])
+
+    await query.message.edit_text(
+        "📺 Select Episode:",
+        reply_markup=InlineKeyboardMarkup(btn)
+    )
+
+    elif data.startswith("ep#"):
+
+    ep = int(data.split("#")[1])
+
+    results = search_cache.get(query.from_user.id)
+    if not results:
+        return await query.answer("No results", show_alert=True)
+
+    filtered = [m for m in results if m.get("episode") == ep]
+
+    search_cache[query.from_user.id] = filtered
+
+    await send_page(query.message, filtered, 0, f"Episode {ep}")
+
+    
+
+    
     if data.startswith("movie#"):
 
         from bson import ObjectId
@@ -1082,36 +1198,41 @@ async def broadcast(client, message):
 
     msg = message.reply_to_message
 
-    users_list = users.find({})
-
     sent = 0
+    failed = 0
 
-    async for user in users_list:
+    async for user in users.find({}):
+
         try:
-            await msg.copy(user["_id"])
-            sent += 1
-        except:
-            pass
+            user_id = user["_id"]
 
-    await message.reply_text(f"📢 Broadcast sent to {sent} users")
+            await msg.copy(chat_id=user_id)
+            sent += 1
+
+        except:
+            failed += 1
+
+    await message.reply_text(
+        f"📢 Broadcast Done\n\n"
+        f"✅ Sent: {sent}\n"
+        f"❌ Failed: {failed}"
+    )
 
 #------------- INFO USER -------------#
 
 @app.on_message(filters.command("info"))
 async def info(client, message):
 
-    if message.reply_to_message:
-        user = message.reply_to_message.from_user
-    else:
-        user = message.from_user
+    user = message.reply_to_message.from_user if message.reply_to_message else message.from_user
 
-    text = f"""
-👤 User Info
+    username = f"@{user.username}" if user.username else "None"
 
-🆔 ID: {user.id}
-👤 Name: {user.first_name}
-📛 Username: @{user.username if user.username else 'None'}
-"""
+    text = (
+        "👤 User Info\n\n"
+        f"🆔 ID: {user.id}\n"
+        f"👤 Name: {user.first_name}\n"
+        f"📛 Username: {username}\n"
+    )
 
     await message.reply_text(text)
 
