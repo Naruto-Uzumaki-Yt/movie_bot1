@@ -403,37 +403,37 @@ async def save_movie(client, message):
     file_name_lower = file_name.lower()
 
 # ---------------- SEASON ----------------
-season = None
-for s in range(1, 21):
-    if f"s{s}" in file_name_lower or f"season {s}" in file_name_lower:
-        season = s
-        break
-
-# ---------------- EPISODE ----------------
-episode = None
-if "episode" in file_name_lower:
-    for e in range(1, 500):
-        if f"e{e}" in file_name_lower or f"episode {e}" in file_name_lower:
-            episode = e
+    season = None
+    for s in range(1, 21):
+        if f"s{s}" in file_name_lower or f"season {s}" in file_name_lower:
+            season = s
             break
 
+# ---------------- EPISODE ----------------
+    episode = None
+    if "episode" in file_name_lower:
+        for e in range(1, 500):
+            if f"e{e}" in file_name_lower or f"episode {e}" in file_name_lower:
+                episode = e
+                break
+
 # ---------------- FINAL DATA ----------------
-data = {
-    "file_name": file_name,
-    "file_id": media.file_id,
-    "file_size": media.file_size,
+    data = {
+        "file_name": file_name,
+        "file_id": media.file_id,
+        "file_size": media.file_size,
 
-    "year": None,
-    "language": None,
-    "quality": None,
+        "year": None,
+        "language": None,
+        "quality": None,
 
-    "season": season,
-    "episode": episode
-}
+        "season": season,
+        "episode": episode
+    }
 
-# SAVE TO DATABASE
-await add_movie(data)
-print( f"✅ Saved : {file_name}" )
+    # SAVE TO DATABASE
+    await add_movie(data)
+    print(f"✅ Saved : {file_name}")
 
 # ---------------- FORCE SUB ----------------
 
