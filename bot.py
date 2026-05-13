@@ -432,13 +432,9 @@ data = {
     "episode": episode
 }
 
-    # SAVE TO DATABASE
-
-    await add_movie(data)
-
-    print(
-        f"✅ Saved : {file_name}"
-    )
+# SAVE TO DATABASE
+await add_movie(data)
+print( f"✅ Saved : {file_name}" )
 
 # ---------------- FORCE SUB ----------------
 
