@@ -882,10 +882,10 @@ async def callback(
 
     elif data == "back_home":
 
-    await query.message.edit_caption(
-        caption=START_TEXT,
-        reply_markup=home_buttons()
-    )
+        await query.message.edit_caption(
+            caption=START_TEXT,
+            reply_markup=home_buttons()
+        )
 
     elif data == "seasons":
 
