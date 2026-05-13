@@ -401,7 +401,6 @@ async def save_movie(client, message):
         file_name = "Movie"
 
     file_name_lower = file_name.lower()
-file_name_lower = file_name.lower()
 
 # ---------------- SEASON ----------------
 season = None
