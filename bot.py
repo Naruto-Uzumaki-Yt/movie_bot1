@@ -799,86 +799,86 @@ async def callback(
 
     elif data.startswith("lang#"):
 
-    lang = data.split("#")[1]
+        lang = data.split("#")[1]
 
-    results = search_cache.get(query.from_user.id)
-    if not results:
-        return await query.answer("No results", show_alert=True)
+        results = search_cache.get(query.from_user.id)
+        if not results:
+            return await query.answer("No results", show_alert=True)
 
-    filtered = apply_filter(results, "language", lang)
+        filtered = apply_filter(results, "language", lang)
 
-    search_cache[query.from_user.id] = filtered
+        search_cache[query.from_user.id] = filtered
 
-    await send_page(query.message, filtered, 0, lang)
+        await send_page(query.message, filtered, 0, lang)
 
     elif data == "quality":
 
-    btn = InlineKeyboardMarkup([
-        [
-            InlineKeyboardButton("480p", callback_data="q#480p"),
-            InlineKeyboardButton("720p", callback_data="q#720p"),
-            InlineKeyboardButton("1080p", callback_data="q#1080p")
-        ],
-        [
-            InlineKeyboardButton("⬅️ Back", callback_data="back_home")
-        ]
-    ])
+        btn = InlineKeyboardMarkup([
+            [
+                InlineKeyboardButton("480p", callback_data="q#480p"),
+                InlineKeyboardButton("720p", callback_data="q#720p"),
+                InlineKeyboardButton("1080p", callback_data="q#1080p")
+            ],
+            [
+                InlineKeyboardButton("⬅️ Back", callback_data="back_home")
+            ]
+       ])
 
-    await query.message.edit_text("🎞 Select Quality:", reply_markup=btn)
+       await query.message.edit_text("🎞 Select Quality:", reply_markup=btn)
 
     elif data.startswith("q#"):
 
-    quality = data.split("#")[1]
+        quality = data.split("#")[1]
 
-    results = search_cache.get(query.from_user.id)
-    if not results:
-        return await query.answer("No results", show_alert=True)
+        results = search_cache.get(query.from_user.id)
+        if not results:
+            return await query.answer("No results", show_alert=True)
 
-    filtered = apply_filter(results, "quality", quality)
+        filtered = apply_filter(results, "quality", quality)
 
-    search_cache[query.from_user.id] = filtered
+        search_cache[query.from_user.id] = filtered
 
-    await send_page(query.message, filtered, 0, quality)
-
+        await send_page(query.message, filtered, 0, quality)
+    
     elif data == "years":
 
-    btn = InlineKeyboardMarkup([
-        [
-            InlineKeyboardButton("2022", callback_data="y#2022"),
-            InlineKeyboardButton("2023", callback_data="y#2023")
-        ],
-        [
-            InlineKeyboardButton("2024", callback_data="y#2024"),
-            InlineKeyboardButton("2025", callback_data="y#2025")
-        ],
-        [
-            InlineKeyboardButton("⬅️ Back", callback_data="back_home")
-        ]
-    ])
+        btn = InlineKeyboardMarkup([
+            [
+                InlineKeyboardButton("2022", callback_data="y#2022"),
+                InlineKeyboardButton("2023", callback_data="y#2023")
+            ],
+            [
+                InlineKeyboardButton("2024", callback_data="y#2024"),
+                InlineKeyboardButton("2025", callback_data="y#2025")
+            ],
+            [
+                InlineKeyboardButton("⬅️ Back", callback_data="back_home")
+            ]
+        ])
 
-    await query.message.edit_text("📅 Select Year:", reply_markup=btn)
+        await query.message.edit_text("📅 Select Year:", reply_markup=btn)
 
     elif data.startswith("y#"):
 
-    year = data.split("#")[1]
+        year = data.split("#")[1]
 
-    results = search_cache.get(query.from_user.id)
-    if not results:
-        return await query.answer("No results", show_alert=True)
+        results = search_cache.get(query.from_user.id)
+        if not results:
+            return await query.answer("No results", show_alert=True)
 
-    filtered = apply_filter(results, "year", year)
+        filtered = apply_filter(results, "year", year)
 
-    search_cache[query.from_user.id] = filtered
-
-    await send_page(query.message, filtered, 0, year)
+        search_cache[query.from_user.id] = filtered
+   
+        await send_page(query.message, filtered, 0, year)
 
     elif data == "send_all":
 
-    results = search_cache.get(query.from_user.id)
-    if not results:
-        return await query.answer("No results", show_alert=True)
+        results = search_cache.get(query.from_user.id)
+        if not results:
+            return await query.answer("No results", show_alert=True)
 
-    await send_page(query.message, results, 0, "ALL MOVIES")
+        await send_page(query.message, results, 0, "ALL MOVIES")
 
     elif data == "back_home":
 
@@ -889,93 +889,91 @@ async def callback(
 
     elif data == "seasons":
 
-    btn = []
+          btn = []
 
-    row = []
+          row = []
 
-    for i in range(1, 21):
-        row.append(
-            InlineKeyboardButton(
-                f"Season {i}",
-                callback_data=f"season#{i}"
-            )
-        )
+          for i in range(1, 21):
+              row.append(
+                  InlineKeyboardButton(
+                      f"Season {i}",
+                    callback_data=f"season#{i}"
+                  )
+              )
 
-        if len(row) == 4:
-            btn.append(row)
-            row = []
+              if len(row) == 4:
+                  btn.append(row)
+                  row = []
 
-    if row:
-        btn.append(row)
+          if row:
+              btn.append(row)
 
-    btn.append([
-        InlineKeyboardButton("⬅️ Back", callback_data="back_home")
-    ])
+          btn.append([
+              InlineKeyboardButton("⬅️ Back", callback_data="back_home")
+          ])
 
-    await query.message.edit_text(
-        "📚 Select Season:",
-        reply_markup=InlineKeyboardMarkup(btn)
-    )
+          await query.message.edit_text(
+              "📚 Select Season:",
+          reply_markup=InlineKeyboardMarkup(btn)
+          ) 
 
     elif data.startswith("season#"):
 
-    season = int(data.split("#")[1])
+        season = int(data.split("#")[1])
 
-    results = search_cache.get(query.from_user.id)
-    if not results:
-        return await query.answer("No results", show_alert=True)
+        results = search_cache.get(query.from_user.id)
+        if not results:
+            return await query.answer("No results", show_alert=True)
 
-    filtered = [m for m in results if m.get("season") == season]
+        filtered = [m for m in results if m.get("season") == season]
 
-    search_cache[query.from_user.id] = filtered
-
-    await send_page(query.message, filtered, 0, f"Season {season}")
+        search_cache[query.from_user.id] = filtered
+ 
+        await send_page(query.message, filtered, 0, f"Season {season}")
 
     elif data == "episodes":
 
-    btn = []
+          btn = []
 
-    row = []
+          row = []
 
-    for i in range(1, 51):
-        row.append(
-            InlineKeyboardButton(
-                f"E{i}",
-                callback_data=f"ep#{i}"
-            )
-        )
+          for i in range(1, 51):
+              row.append(
+                  InlineKeyboardButton(
+                      f"E{i}",
+                     callback_data=f"ep#{i}"
+                  )
+              )
 
-        if len(row) == 5:
-            btn.append(row)
-            row = []
+              if len(row) == 5:
+                  btn.append(row)
+                  row = []
 
-    if row:
-        btn.append(row)
+          if row:
+              btn.append(row)
 
-    btn.append([
-        InlineKeyboardButton("⬅️ Back", callback_data="back_home")
-    ])
-
-    await query.message.edit_text(
-        "📺 Select Episode:",
-        reply_markup=InlineKeyboardMarkup(btn)
-    )
+          btn.append([
+              InlineKeyboardButton("⬅️ Back", callback_data="back_home")
+          ])
+ 
+          await query.message.edit_text(
+              "📺 Select Episode:",
+          reply_markup=InlineKeyboardMarkup(btn)
+          )
 
     elif data.startswith("ep#"):
 
-    ep = int(data.split("#")[1])
+        ep = int(data.split("#")[1])
 
-    results = search_cache.get(query.from_user.id)
-    if not results:
-        return await query.answer("No results", show_alert=True)
+        results = search_cache.get(query.from_user.id)
+        if not results:
+            return await query.answer("No results", show_alert=True)
 
-    filtered = [m for m in results if m.get("episode") == ep]
+        filtered = [m for m in results if m.get("episode") == ep]
 
-    search_cache[query.from_user.id] = filtered
+        search_cache[query.from_user.id] = filtered
 
-    await send_page(query.message, filtered, 0, f"Episode {ep}")
-
-    
+        await send_page(query.message, filtered, 0, f"Episode {ep}")
 
     
     if data.startswith("movie#"):
